@@ -1,15 +1,15 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Task } from '../types'
 
-const url = import.meta.env.VITE_SUPABASE_URL
-const anon = import.meta.env.VITE_SUPABASE_ANON_KEY
+const url = import.meta.env.VITE_SUPABASE_URL?.trim()
+const anon = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()
 
-if (!url || !anon) {
-  console.warn(
-    'Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Copy .env.example to .env and add your Supabase keys.',
-  )
+export function isSupabaseConfigured(): boolean {
+  return Boolean(url && anon)
 }
 
-export const supabase = createClient(url ?? '', anon ?? '')
+/** Null when env is missing — avoids createClient('') which throws and blanks the app. */
+export const supabase: SupabaseClient | null =
+  url && anon ? createClient(url, anon) : null
 
 export type TaskRow = Task

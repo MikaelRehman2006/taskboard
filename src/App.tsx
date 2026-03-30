@@ -5,6 +5,7 @@ import { computeStats, Header } from './components/Header'
 import { TaskFormModal } from './components/TaskFormModal'
 import { useGuestAuth } from './hooks/useGuestAuth'
 import { useTasks } from './hooks/useTasks'
+import { isSupabaseConfigured } from './lib/supabase'
 
 export default function App() {
   const { user, loading: authLoading, error: authError } = useGuestAuth()
@@ -34,8 +35,7 @@ export default function App() {
 
   const stats = useMemo(() => computeStats(tasks), [tasks])
 
-  const hasConfig =
-    Boolean(import.meta.env.VITE_SUPABASE_URL) && Boolean(import.meta.env.VITE_SUPABASE_ANON_KEY)
+  const hasConfig = isSupabaseConfigured()
 
   if (!hasConfig) {
     return (
@@ -43,9 +43,13 @@ export default function App() {
         <div className="banner banner--warn">
           <h2>Configure Supabase</h2>
           <p>
-            Copy <code>.env.example</code> to <code>.env</code> and set <code>VITE_SUPABASE_URL</code> and{' '}
-            <code>VITE_SUPABASE_ANON_KEY</code> from your Supabase project settings. Enable Anonymous sign-in
-            under Authentication → Providers.
+            Add <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> (anon key only). Locally:
+            copy <code>.env.example</code> to <code>.env</code>. On Vercel: Project Settings → Environment
+            Variables for all environments, then <strong>Redeploy</strong> (Vite bakes these in at build time).
+          </p>
+          <p>
+            In Supabase: enable <strong>Anonymous</strong> sign-in under Authentication → Providers, and run{' '}
+            <code>supabase/schema.sql</code>.
           </p>
         </div>
       </div>

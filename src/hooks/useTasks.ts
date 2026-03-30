@@ -16,7 +16,7 @@ export function useTasks(userId: string | undefined) {
   const [error, setError] = useState<string | null>(null)
 
   const fetchTasks = useCallback(async () => {
-    if (!userId) return
+    if (!supabase || !userId) return
     setLoading(true)
     setError(null)
     const { data, error: qErr } = await supabase
@@ -34,10 +34,11 @@ export function useTasks(userId: string | undefined) {
   }, [userId])
 
   useEffect(() => {
-    if (!userId) return
+    const sb = supabase
+    if (!sb || !userId) return
     void fetchTasks()
 
-    const channel = supabase
+    const channel = sb
       .channel('tasks-changes')
       .on(
         'postgres_changes',
@@ -49,13 +50,13 @@ export function useTasks(userId: string | undefined) {
       .subscribe()
 
     return () => {
-      void supabase.removeChannel(channel)
+      void sb.removeChannel(channel)
     }
   }, [userId, fetchTasks])
 
   const createTask = useCallback(
     async (input: NewTaskInput) => {
-      if (!userId) return { error: 'Not signed in' as const }
+      if (!supabase || !userId) return { error: 'Not signed in' as const }
       const row = {
         title: input.title.trim(),
         status: (input.status ?? 'todo') satisfies TaskStatus,
@@ -72,6 +73,7 @@ export function useTasks(userId: string | undefined) {
   )
 
   const updateTask = useCallback(async (id: string, patch: Partial<Task>) => {
+    if (!supabase) return { error: 'Not configured' }
     const { data, error: upErr } = await supabase.from('tasks').update(patch).eq('id', id).select().single()
     if (upErr) return { error: upErr.message }
     const updated = data as Task
@@ -87,6 +89,7 @@ export function useTasks(userId: string | undefined) {
   )
 
   const deleteTask = useCallback(async (id: string) => {
+    if (!supabase) return { error: 'Not configured' }
     const { error: delErr } = await supabase.from('tasks').delete().eq('id', id)
     if (delErr) return { error: delErr.message }
     setTasks((prev) => prev.filter((t) => t.id !== id))

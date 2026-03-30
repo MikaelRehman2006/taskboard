@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { User } from '@supabase/supabase-js'
+import type { SupabaseClient, User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 
 export function useGuestAuth() {
@@ -8,13 +8,19 @@ export function useGuestAuth() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    const client = supabase
+    if (!client) {
+      setLoading(false)
+      return
+    }
+
     let cancelled = false
 
-    async function init() {
+    async function init(sb: SupabaseClient) {
       setLoading(true)
       setError(null)
       try {
-        const { data: sessionData, error: sessionErr } = await supabase.auth.getSession()
+        const { data: sessionData, error: sessionErr } = await sb.auth.getSession()
         if (sessionErr) throw sessionErr
         if (cancelled) return
 
@@ -24,7 +30,7 @@ export function useGuestAuth() {
           return
         }
 
-        const { data, error: anonErr } = await supabase.auth.signInAnonymously()
+        const { data, error: anonErr } = await sb.auth.signInAnonymously()
         if (anonErr) throw anonErr
         if (cancelled) return
         setUser(data.user ?? null)
@@ -37,11 +43,11 @@ export function useGuestAuth() {
       }
     }
 
-    void init()
+    void init(client)
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = client.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
 
