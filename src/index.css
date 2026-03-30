@@ -266,12 +266,86 @@ code {
   color: var(--text);
 }
 
-/* Board */
+/* Board — horizontal scroll on narrow viewports keeps 4 Kanban columns usable */
+.board-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.75rem;
+  margin: 0 -0.25rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
 .board {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(4, minmax(260px, 1fr));
   gap: 1rem;
   align-items: start;
+}
+
+@media (max-width: 1150px) {
+  .board {
+    min-width: 1088px;
+  }
+}
+
+.filter-empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.filter-empty p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.welcome-strip {
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--accent-dim);
+  border: 1px solid rgba(129, 140, 248, 0.25);
+  border-radius: var(--radius-sm);
+}
+
+.welcome-strip__text {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .column {
+    min-height: 300px;
+  }
+
+  .column__body {
+    min-height: 220px;
+  }
+
+  .app-header__stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .app-header__tools {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input {
+    max-width: none;
+  }
 }
 
 .board-loading {

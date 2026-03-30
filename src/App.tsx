@@ -99,6 +99,30 @@ export default function App() {
         </div>
       ) : null}
 
+      {tasks.length > 0 && filtered.length === 0 ? (
+        <div className="filter-empty" role="status">
+          <p>No tasks match your search or priority filter.</p>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => {
+              setSearch('')
+              setPriorityFilter('all')
+            }}
+          >
+            Clear filters
+          </button>
+        </div>
+      ) : null}
+
+      {tasks.length === 0 && !tasksLoading ? (
+        <div className="welcome-strip" role="region" aria-label="Getting started">
+          <p className="welcome-strip__text">
+            <strong>Welcome.</strong> Create your first task or drag cards between columns once you add work.
+          </p>
+        </div>
+      ) : null}
+
       {tasksLoading && tasks.length === 0 ? (
         <div className="board-loading">
           <div className="spinner" />

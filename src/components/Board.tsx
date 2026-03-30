@@ -2,6 +2,7 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  TouchSensor,
   closestCorners,
   useSensor,
   useSensors,
@@ -27,7 +28,10 @@ export function Board({
 }) {
   const [active, setActive] = useState<Task | null>(null)
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 180, tolerance: 6 },
+    }),
   )
 
   const byStatus = useMemo(() => {
@@ -78,7 +82,8 @@ export function Board({
       onDragEnd={onDragEnd}
       onDragCancel={() => setActive(null)}
     >
-      <div className="board">
+      <div className="board-wrap">
+        <div className="board">
         {COLUMNS.map((col) => (
           <Column
             key={col.id}
@@ -90,6 +95,7 @@ export function Board({
             onDeleteTask={onDeleteTask}
           />
         ))}
+        </div>
       </div>
       <DragOverlay dropAnimation={{ duration: 200, easing: 'ease' }}>
         {active ? <TaskCardOverlay task={active} /> : null}
